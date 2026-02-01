@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "lexer.h"
 
@@ -84,6 +85,233 @@ void lexer_destroy(Lexer *lexer) {
     }
 }
 
+static Token_Kind token_test_keywords(const Token *identifier) {
+    const char *name = identifier->value.as_identifier;
+    
+    switch (identifier->length) {
+    case 2:
+        if (strncmp(name, "do", 2) == 0) {
+            return Token_Kind__Keyword_Do;
+        }
+        if (strncmp(name, "if", 2) == 0) {
+            return Token_Kind__Keyword_If;
+        }
+        break;
+        
+    case 3:
+        if (strncmp(name, "asm", 3) == 0) {
+            return Token_Kind__Keyword_Asm;
+        }
+        if (strncmp(name, "for", 3) == 0) {
+            return Token_Kind__Keyword_For;
+        }
+        if (strncmp(name, "int", 3) == 0) {
+            return Token_Kind__Keyword_Int;
+        }
+        break;
+
+    case 4:
+        if (strncmp(name, "auto", 4) == 0) {
+            return Token_Kind__Keyword_Auto;
+        }
+        if (strncmp(name, "bool", 4) == 0) {
+            return Token_Kind__Keyword_Bool;
+        }
+        if (strncmp(name, "case", 4) == 0) {
+            return Token_Kind__Keyword_Case;
+        }
+        if (strncmp(name, "char", 4) == 0) {
+            return Token_Kind__Keyword_Char;
+        }
+        if (strncmp(name, "else", 4) == 0) {
+            return Token_Kind__Keyword_Else;
+        }
+        if (strncmp(name, "enum", 4) == 0) {
+            return Token_Kind__Keyword_Enum;
+        }
+        if (strncmp(name, "goto", 4) == 0) {
+            return Token_Kind__Keyword_Goto;
+        }
+        if (strncmp(name, "long", 4) == 0) {
+            return Token_Kind__Keyword_Long;
+        }
+        if (strncmp(name, "true", 4) == 0) {
+            return Token_Kind__Keyword_True;
+        }
+        if (strncmp(name, "void", 4) == 0) {
+            return Token_Kind__Keyword_Void;
+        }
+        break;
+
+    case 5:
+        if (strncmp(name, "_Bool", 5) == 0) {
+            return Token_Kind__Keyword_Bool;
+        }
+        if (strncmp(name, "break", 5) == 0) {
+            return Token_Kind__Keyword_Break;
+        }
+        if (strncmp(name, "const", 5) == 0) {
+            return Token_Kind__Keyword_Const;
+        }
+        if (strncmp(name, "false", 5) == 0) {
+            return Token_Kind__Keyword_False;
+        }
+        if (strncmp(name, "float", 5) == 0) {
+            return Token_Kind__Keyword_Float;
+        }
+        if (strncmp(name, "short", 5) == 0) {
+            return Token_Kind__Keyword_Short;
+        }
+        if (strncmp(name, "union", 5) == 0) {
+            return Token_Kind__Keyword_Union;
+        }
+        if (strncmp(name, "while", 5) == 0) {
+            return Token_Kind__Keyword_While;
+        }
+        break;
+
+    case 6:
+        if (strncmp(name, "double", 6) == 0) {
+            return Token_Kind__Keyword_Double;
+        }
+        if (strncmp(name, "extern", 6) == 0) {
+            return Token_Kind__Keyword_Extern;
+        }
+        if (strncmp(name, "inline", 6) == 0) {
+            return Token_Kind__Keyword_Inline;
+        }
+        if (strncmp(name, "return", 6) == 0) {
+            return Token_Kind__Keyword_Return;
+        }
+        if (strncmp(name, "signed", 6) == 0) {
+            return Token_Kind__Keyword_Signed;
+        }
+        if (strncmp(name, "sizeof", 6) == 0) {
+            return Token_Kind__Keyword_Sizeof;
+        }
+        if (strncmp(name, "static", 6) == 0) {
+            return Token_Kind__Keyword_Static;
+        }
+        if (strncmp(name, "struct", 6) == 0) {
+            return Token_Kind__Keyword_Struct;
+        }
+        if (strncmp(name, "switch", 6) == 0) {
+            return Token_Kind__Keyword_Switch;
+        }
+        if (strncmp(name, "typeof", 6) == 0) {
+            return Token_Kind__Keyword_Typeof;
+        }
+        break;
+
+    case 7:
+        if (strncmp(name, "_Atomic", 7) == 0) {
+            return Token_Kind__Keyword_Atomic;
+        }
+        if (strncmp(name, "_BigInt", 7) == 0) {
+            return Token_Kind__Keyword_Bigint;
+        }
+        if (strncmp(name, "alignas", 7) == 0) {
+            return Token_Kind__Keyword_Alignas;
+        }
+        if (strncmp(name, "alignof", 7) == 0) {
+            return Token_Kind__Keyword_Alignof;
+        }
+        if (strncmp(name, "default", 7) == 0) {
+            return Token_Kind__Keyword_Default;
+        }
+        if (strncmp(name, "nullptr", 7) == 0) {
+            return Token_Kind__Keyword_Nullptr;
+        }
+        if (strncmp(name, "typedef", 7) == 0) {
+            return Token_Kind__Keyword_Typedef;
+        }
+        break;
+
+    case 8:
+        if (strncmp(name, "_Alignas", 8) == 0) {
+            return Token_Kind__Keyword_Alignas;
+        }
+        if (strncmp(name, "_Alignof", 8) == 0) {
+            return Token_Kind__Keyword_Alignof;
+        }
+        if (strncmp(name, "_Complex", 8) == 0) {
+            return Token_Kind__Keyword_Complex;
+        }
+        if (strncmp(name, "_Generic", 8) == 0) {
+            return Token_Kind__Keyword_Generic;
+        }
+        if (strncmp(name, "continue", 8) == 0) {
+            return Token_Kind__Keyword_Continue;
+        }
+        if (strncmp(name, "register", 8) == 0) {
+            return Token_Kind__Keyword_Register;
+        }
+        if (strncmp(name, "restrict", 8) == 0) {
+            return Token_Kind__Keyword_Restrict;
+        }
+        if (strncmp(name, "unsigned", 8) == 0) {
+            return Token_Kind__Keyword_Unsigned;
+        }
+        if (strncmp(name, "volatile", 8) == 0) {
+            return Token_Kind__Keyword_Volatile;
+        }
+        break;
+
+    case 9:
+        if (strncmp(name, "_Noreturn", 9) == 0) {
+            return Token_Kind__Keyword_Noreturn;
+        }
+        if (strncmp(name, "constexpr", 9) == 0) {
+            return Token_Kind__Keyword_Constexpr;
+        }
+        break;
+
+    case 10:
+        if (strncmp(name, "_Decimal32", 10) == 0) {
+            return Token_Kind__Keyword_Decimal32;
+        }
+        if (strncmp(name, "_Decimal64", 10) == 0) {
+            return Token_Kind__Keyword_Decimal64;
+        }
+        if (strncmp(name, "_Imaginary", 10) == 0) {
+            return Token_Kind__Keyword_Imaginary;
+        }
+        break;
+
+    case 11:
+        if (strncmp(name, "_Decimal128", 11) == 0) {
+            return Token_Kind__Keyword_Decimal128;
+        }
+        break;
+
+    case 12:
+        if (strncmp(name, "thread_local", 12) == 0) {
+            return Token_Kind__Keyword_Thread_Local;
+        }
+        break;
+        
+    case 13:
+        if (strncmp(name, "_Thread_local", 13) == 0) {
+            return Token_Kind__Keyword_Thread_Local;
+        }
+        if (strncmp(name, "static_assert", 13) == 0) {
+            return Token_Kind__Keyword_Static_Assert;
+        }
+        if (strncmp(name, "typeof_unqual", 13) == 0) {
+            return Token_Kind__Keyword_Typeof_Unqual;
+        }
+        break;
+
+    case 14:
+        if (strncmp(name, "_Static_assert", 14) == 0) {
+            return Token_Kind__Keyword_Static_Assert;
+        }
+        break;
+    }
+
+    return Token_Kind__Identifier;
+}
+
 static Lexer_Status lexer_tokenize_identifier(Lexer *lexer) {
     if (!is_identifier_initial(lexer->head[0])) {
         return Lexer_Status__Ok;
@@ -105,6 +333,8 @@ static Lexer_Status lexer_tokenize_identifier(Lexer *lexer) {
     if (identifier->value.as_identifier == NULL) {
         return Lexer_Status__Memory_Failure;
     }
+
+    identifier->kind = token_test_keywords(identifier);
 
     lexer_accept_token(lexer, identifier);
     
