@@ -411,10 +411,7 @@ static Token_Kind lexer_peek_symbol(const Lexer *lexer) {
         return Token_Kind__Symbol_Modulo;
 
     case '.':
-        if (
-            !lexer_near_end(lexer, 2) &&
-            lexer->head[1] == '.' && lexer->head[2] == '.'
-        ) {
+        if (!lexer_near_end(lexer, 2) && lexer->head[1] == '.' && lexer->head[2] == '.') {
             return Token_Kind__Symbol_Ellipsis;
         }
         return Token_Kind__Symbol_Dot;

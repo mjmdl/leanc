@@ -1,3 +1,7 @@
+#include "arena.c"
+#include "token.c"
+#include "lexer.c"
+
 #include <stdio.h>
 #include <string.h>
 
