@@ -84,9 +84,43 @@ void lexer_destroy(Lexer *lexer) {
     }
 }
 
+static Lexer_Status lexer_tokenize_identifier(Lexer *lexer) {
+    if (!is_identifier_initial(lexer->head[0])) {
+        return Lexer_Status__Ok;
+    }
+
+    Token *identifier = lexer_ready_token(lexer, Token_Kind__Identifier);
+    if (identifier == NULL) {
+        return Lexer_Status__Memory_Failure;
+    }
+
+    const char *head = lexer->head;
+
+    do {
+        ++lexer->head;
+    } while (!lexer_near_end(lexer, 0) && is_identifier_trailing(lexer->head[0]));
+
+    identifier->length = lexer->head - head;
+    identifier->value.as_identifier = arena_duplicate_string(lexer->string_arena, head, identifier->length);
+    if (identifier->value.as_identifier == NULL) {
+        return Lexer_Status__Memory_Failure;
+    }
+
+    lexer_accept_token(lexer, identifier);
+    
+    return Lexer_Status__Token_Found;
+}
+
 static Lexer_Status lexer_tokenize_next(Lexer *lexer) {
-    (void)lexer;
-    return Lexer_Status__Not_Implemented;
+    Lexer_Status status = lexer_tokenize_identifier(lexer);
+    if (status != Lexer_Status__Ok) {
+        return status;
+    }
+
+    ++lexer->head;
+    return Lexer_Status__Ok;
+    
+    //return Lexer_Status__Not_Implemented;
 }
 
 Lexer_Status lexer_tokenize(Lexer *lexer) {

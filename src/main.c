@@ -11,7 +11,7 @@ static const char *hello_world_c =
 
 int main(void) {
     Lexer_Status status;
-
+    
     Lexer lexer = {0};
     status = lexer_create(&lexer, hello_world_c, strlen(hello_world_c));
     if (status != Lexer_Status__Ok) {
