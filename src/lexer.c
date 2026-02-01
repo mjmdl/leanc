@@ -567,10 +567,50 @@ static Lexer_Status lexer_tokenize_literal_char(Lexer *lexer) {
     return Lexer_Status__Token_Found;
 }
 
+static Lexer_Status lexer_tokenize_literal_string(Lexer *lexer) {
+    if (lexer->head[0] != '"') {
+        return Lexer_Status__Ok;
+    }
+    ++lexer->head;
+
+    Token *literal = lexer_ready_token(lexer, Token_Kind__Value_String);
+    const char *head = lexer->head;
+    
+    bool escaped = false;
+    while (!lexer_near_end(lexer, 0)) {
+        if (escaped) {
+            escaped = false;
+        } else if (lexer->head[0] == '\\') {
+            escaped = true;
+        } else if (lexer->head[0] == '"') {
+            break;
+        }
+        
+        ++lexer->head;
+    }
+
+    if (lexer_near_end(lexer, 0)) {
+        return Lexer_Status__Unexpected_Character;
+    }
+
+    literal->length = lexer->head - head;
+    literal->value.as_string = arena_duplicate_string(lexer->string_arena, head, literal->length);
+
+    ++lexer->head;
+
+    lexer_accept_token(lexer, literal);
+    
+    return Lexer_Status__Token_Found;
+}
+
 static Lexer_Status lexer_tokenize_literal(Lexer *lexer) {
     Lexer_Status status;
 
     if ((status = lexer_tokenize_literal_char(lexer)) != Lexer_Status__Ok) {
+        return status;
+    }
+
+    if ((status = lexer_tokenize_literal_string(lexer)) != Lexer_Status__Ok) {
         return status;
     }
 
