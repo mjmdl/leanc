@@ -534,6 +534,49 @@ static Lexer_Status lexer_tokenize_symbol(Lexer *lexer) {
     return Lexer_Status__Token_Found;
 }
 
+static Lexer_Status lexer_tokenize_literal_char(Lexer *lexer) {
+    if (lexer->head[0] != '\'') {
+        return Lexer_Status__Ok;
+    }
+    ++lexer->head;
+
+    if (lexer_near_end(lexer, 1)) {
+        return Lexer_Status__Unexpected_Character;
+    }
+
+    Token *literal = lexer_ready_token(lexer, Token_Kind__Value_Char);
+
+    if (lexer->head[0] == '\\') {
+        ++lexer->head;
+
+        if (lexer_near_end(lexer, 1)) {
+            return Lexer_Status__Unexpected_Character;
+        }
+    }
+
+    literal->value.as_char = *lexer->head;
+    ++lexer->head;
+
+    if (lexer->head[0] != '\'') {
+        return Lexer_Status__Unexpected_Character;
+    }
+    ++lexer->head;
+    
+    lexer_accept_token(lexer, literal);
+
+    return Lexer_Status__Token_Found;
+}
+
+static Lexer_Status lexer_tokenize_literal(Lexer *lexer) {
+    Lexer_Status status;
+
+    if ((status = lexer_tokenize_literal_char(lexer)) != Lexer_Status__Ok) {
+        return status;
+    }
+
+    return Lexer_Status__Ok;
+}
+
 static Lexer_Status lexer_tokenize_next(Lexer *lexer) {
     Lexer_Status status = Lexer_Status__Ok;
 
@@ -546,6 +589,10 @@ static Lexer_Status lexer_tokenize_next(Lexer *lexer) {
     }
 
     if ((status = lexer_tokenize_symbol(lexer)) != Lexer_Status__Ok) {
+        return status;
+    }
+
+    if ((status = lexer_tokenize_literal(lexer)) != Lexer_Status__Ok) {
         return status;
     }
 
