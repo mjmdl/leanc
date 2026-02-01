@@ -312,7 +312,7 @@ static Token_Kind token_test_keywords(const Token *identifier) {
     return Token_Kind__Identifier;
 }
 
-static Lexer_Status lexer_tokenize_identifier(Lexer *lexer) {
+static Lexer_Status lexer_chop_identifier(Lexer *lexer, Token **out_identifier) {
     if (!is_identifier_initial(lexer->head[0])) {
         return Lexer_Status__Ok;
     }
@@ -334,11 +334,32 @@ static Lexer_Status lexer_tokenize_identifier(Lexer *lexer) {
         return Lexer_Status__Memory_Failure;
     }
 
+    *out_identifier = identifier;
+    return Lexer_Status__Token_Found;
+}
+
+static Lexer_Status lexer_tokenize_identifier_or_keyword(Lexer *lexer) {
+    Token *identifier = NULL;
+    Lexer_Status status = lexer_chop_identifier(lexer, &identifier);
+    if (status != Lexer_Status__Token_Found) {
+        return status;
+    }
+        
     identifier->kind = token_test_keywords(identifier);
 
     lexer_accept_token(lexer, identifier);
     
     return Lexer_Status__Token_Found;
+}
+
+static Lexer_Status lexer_tokenize_preprocessor_directive(Lexer *lexer) {
+    if (lexer->head[0] != '#') {
+        return Lexer_Status__Ok;
+    }
+
+    ++lexer->head;
+
+    return Lexer_Status__Not_Implemented;
 }
 
 static Token_Kind lexer_peek_symbol(const Lexer *lexer) {
@@ -515,8 +536,12 @@ static Lexer_Status lexer_tokenize_symbol(Lexer *lexer) {
 
 static Lexer_Status lexer_tokenize_next(Lexer *lexer) {
     Lexer_Status status = Lexer_Status__Ok;
+
+    if ((status = lexer_tokenize_preprocessor_directive(lexer)) != Lexer_Status__Ok) {
+        return status;
+    }
     
-    if ((status = lexer_tokenize_identifier(lexer)) != Lexer_Status__Ok) {
+    if ((status = lexer_tokenize_identifier_or_keyword(lexer)) != Lexer_Status__Ok) {
         return status;
     }
 

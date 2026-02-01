@@ -2,7 +2,7 @@
 #include <string.h>
 
 static const char *hello_world_c =
-    "#include <stdio.h>\n"
+    "include <stdio.h>\n"
     "\n"
     "int main(void) {\n"
     "    printf(\"Hello, World!\n\");\n"
